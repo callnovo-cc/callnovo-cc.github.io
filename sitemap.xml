@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Root sitemap index — points crawlers to the real Jekyll sitemap under /blog/ -->
+<sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <sitemap>
+    <loc>https://callnovo-cc.github.io/blog/sitemap.xml</loc>
+  </sitemap>
+</sitemapindex>

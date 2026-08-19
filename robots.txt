@@ -1,0 +1,8 @@
+# Callnovo — root robots.txt for the GitHub Pages user site.
+# All content lives at /blog/ — canonical site at callnovo-cc.github.io/blog/
+# This file exists so Search Console's fallback fetch resolves cleanly.
+
+User-agent: *
+Allow: /
+
+Sitemap: https://callnovo-cc.github.io/blog/sitemap.xml
