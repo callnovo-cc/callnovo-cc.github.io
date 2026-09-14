@@ -27,6 +27,16 @@ from pathlib import Path
 
 FEED_URL = "https://callnovo-cc.github.io/blog/feed.xml"
 SITE = "https://callnovo-cc.github.io"
+LIBRARY = f"{SITE}/blog/"
+# Library pages that are not articles. Everything else under /blog/ in the feed
+# is treated as a post, so a change to the permalink scheme in the blog's
+# _config.yml does not strand entries the way a hardcoded date pattern would.
+NON_ARTICLE_PATHS = {
+    LIBRARY,
+    f"{LIBRARY}about.html",
+    f"{LIBRARY}categories/",
+    f"{LIBRARY}editorial-standards/",
+}
 ROOT = Path(__file__).resolve().parent.parent
 INDEX = ROOT / "index.html"
 SITEMAPS = [ROOT / "sitemap.xml", ROOT / "sitemap-site.xml"]
@@ -57,12 +67,16 @@ def parse_entries(raw: bytes) -> list[dict[str, str]]:
         if link is None:
             link = entry.find(f"{ATOM}link")
         href = (link.get("href") or "").strip() if link is not None else ""
-        if "/blog/20" not in href:
+        if not href.startswith(LIBRARY) or href in NON_ARTICLE_PATHS:
             continue
 
         title_el = entry.find(f"{ATOM}title")
         title = "".join(title_el.itertext()).strip() if title_el is not None else ""
 
+        # jekyll-feed emits <summary> from the post's `description` front matter,
+        # which the article template already requires. If a post ever ships
+        # without one, fall back to trimmed body text rather than dropping the
+        # entry - the link itself is what matters for crawl discovery.
         summary = ""
         for tag in ("summary", "content"):
             el = entry.find(f"{ATOM}{tag}")
@@ -71,6 +85,8 @@ def parse_entries(raw: bytes) -> list[dict[str, str]]:
                 summary = re.sub(r"\s+", " ", re.sub(r"<[^>]+>", " ", text)).strip()
                 if summary:
                     break
+        if len(summary) > 240:
+            summary = summary[:240].rsplit(" ", 1)[0].rstrip(".,;:") + "..."
 
         published = entry.find(f"{ATOM}published")
         updated = entry.find(f"{ATOM}updated")
@@ -83,7 +99,7 @@ def parse_entries(raw: bytes) -> list[dict[str, str]]:
             continue
 
         entries.append(
-            {"url": href, "title": title, "desc": summary[:300], "date": day}
+            {"url": href, "title": title, "desc": summary, "date": day}
         )
 
     # Newest first, de-duplicated by URL.
