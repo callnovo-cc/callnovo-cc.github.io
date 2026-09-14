@@ -26,6 +26,12 @@ Allow: /
 User-agent: ClaudeBot
 Allow: /
 
+# Claude-SearchBot is the search/indexing crawler and is separate from ClaudeBot
+# (training). Blocking or omitting it reduces visibility in Claude's search
+# answers even when ClaudeBot is allowed.
+User-agent: Claude-SearchBot
+Allow: /
+
 User-agent: Claude-User
 Allow: /
 
