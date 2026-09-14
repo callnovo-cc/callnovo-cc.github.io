@@ -1,0 +1,61 @@
+name: Refresh Insights index
+
+# Keeps the host-root homepage's article list in step with the Insights library.
+#
+# Why this exists: /blog/ is a Jekyll site, so its own index page and its
+# sitemap.xml regenerate on every build — new posts appear there with no
+# maintenance. The host-root homepage in this repository is plain static HTML,
+# so without this workflow it would freeze at whatever articles existed when it
+# was last edited, and new posts would lose their direct crawl path from the
+# root of the domain.
+#
+# Runs twice daily, and on demand via the Actions tab ("Run workflow") for when
+# an article has just been published and you don't want to wait.
+
+on:
+  schedule:
+    # 10:00 and 22:00 America/La_Paz (UTC-4).
+    - cron: "0 14 * * *"
+    - cron: "0 2 * * *"
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - "scripts/refresh_insights.py"
+      - ".github/workflows/refresh-insights.yml"
+
+permissions:
+  contents: write
+
+concurrency:
+  group: refresh-insights
+  cancel-in-progress: false
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Regenerate article list from the Insights feed
+        run: python3 scripts/refresh_insights.py
+
+      - name: Commit changes if the article set moved
+        run: |
+          set -euo pipefail
+          if git diff --quiet; then
+            echo "No change — homepage already matches the published articles."
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add index.html sitemap.xml sitemap-site.xml
+          git commit -m "Refresh Insights article list on the root homepage [skip ci]"
+          git push
+          echo "Homepage updated. GitHub Pages will rebuild shortly."
