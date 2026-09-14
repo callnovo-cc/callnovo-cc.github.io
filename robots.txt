@@ -1,4 +1,44 @@
 User-agent: *
 Allow: /
 
+# Search and answer-engine crawlers are explicitly permitted.
+User-agent: Googlebot
+Allow: /
+
+User-agent: Bingbot
+Allow: /
+
+User-agent: GPTBot
+Allow: /
+
+User-agent: OAI-SearchBot
+Allow: /
+
+User-agent: ChatGPT-User
+Allow: /
+
+User-agent: PerplexityBot
+Allow: /
+
+User-agent: Perplexity-User
+Allow: /
+
+User-agent: ClaudeBot
+Allow: /
+
+User-agent: Claude-User
+Allow: /
+
+User-agent: Google-Extended
+Allow: /
+
+User-agent: Applebot
+Allow: /
+
+User-agent: Applebot-Extended
+Allow: /
+
+# Sitemap index for the whole host, plus the Insights library sitemap declared
+# directly so crawlers reach the article set without depending on the index.
 Sitemap: https://callnovo-cc.github.io/sitemap.xml
+Sitemap: https://callnovo-cc.github.io/blog/sitemap.xml
