@@ -9,17 +9,14 @@ name: Refresh Insights index
 # was last edited, and new posts would lose their direct crawl path from the
 # root of the domain.
 #
-# Primary trigger is a repository_dispatch sent by callnovo-cc/blog as soon as a
-# new post is live. The twice-daily schedule is a safety net, and "Run workflow"
-# in the Actions tab is the manual override.
+# On publish, callnovo-cc/blog runs scripts/refresh_insights.py from a checkout of
+# this repository and pushes the result directly, so a new article reaches this
+# homepage within minutes. This workflow is the safety net for that path: it runs
+# the same script twice daily, and on demand via "Run workflow" in the Actions tab.
 
 on:
-  # Fired by callnovo-cc/blog immediately after a new post is published and the
-  # Pages build finishes. This is the primary trigger.
-  repository_dispatch:
-    types: [insights-published]
   schedule:
-    # Safety net in case a dispatch is missed: 10:00 and 22:00 America/La_Paz.
+    # 10:00 and 22:00 America/La_Paz (UTC-4).
     - cron: "0 14 * * *"
     - cron: "0 2 * * *"
   workflow_dispatch:
